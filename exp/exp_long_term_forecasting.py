@@ -21,7 +21,6 @@ plt.rcParams.update({
     "figure.titlesize": 22
 })
 
-
 def plot_spectrum(true_seq, pred_seq, fs=1.0, title=None, save_path=True):
     """
     绘制真实序列和预测序列的幅度频谱（使用 rFFT），并标注低/中/高频区域。
@@ -285,7 +284,7 @@ class Exp_Long_Term_Forecast(Exp_Basic):
 
             print("Epoch: {0}, Steps: {1} | Train Loss: {2:.7f} Vali Loss: {3:.7f} Test Loss: {4:.7f}".format(
                 epoch + 1, train_steps, train_loss, vali_loss, test_loss))
-            early_stopping(test_loss, self.model, path)
+            early_stopping(vali_loss, self.model, path)
             if early_stopping.early_stop:
                 print("Early stopping")
                 break
