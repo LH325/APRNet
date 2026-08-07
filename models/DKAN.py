@@ -12,68 +12,61 @@ class DiscreteReLU(nn.Module):
         self.method = method
 
         if method == "parametric":
-            # 参数化方法，可学习的参数
+        
             self.alpha = nn.Parameter(torch.tensor(1.0))
             self.beta = nn.Parameter(torch.tensor(1.0))
         elif method == "softplus":
-            # Softplus 方法的温度参数
+           
             self.temperature = nn.Parameter(torch.tensor(1.0))
         elif method == "sigmoid":
-            # Sigmoid 近似的缩放参数
+         
             self.scale = nn.Parameter(torch.tensor(1.0))
 
     def forward(self, x):
         return self._continuous_approximation(x)
 
     def _continuous_approximation(self, x):
-        """训练时使用的连续近似"""
+
 
         if self.method == "parametric":
-            # 方法1: 参数化近似 - 使用平滑的 max(0, x) 近似
+         
             return self._parametric_approximation(x)
 
         elif self.method == "softplus":
-            # 方法2: Softplus 近似 - 数学上更接近 ReLU
+            
             return self._softplus_approximation(x)
 
         elif self.method == "sigmoid":
-            # 方法3: Sigmoid 缩放近似
+        
             return self._sigmoid_approximation(x)
 
         else:
-            # 默认使用 parametric 方法
+         
             return self._parametric_approximation(x)
 
     def _parametric_approximation(self, x):
-        """参数化近似: x * sigmoid(beta * x)"""
+       
         sigmoid = torch.sigmoid(self.beta * x)
         return self.alpha * x * sigmoid
 
     def _softplus_approximation(self, x):
-        """Softplus 近似: 1/temperature * log(1 + exp(temperature * x))"""
-        # 使用温度参数控制平滑度
+
         return (1.0 / self.temperature) * torch.log(1 + torch.exp(self.temperature * x))
 
     def _sigmoid_approximation(self, x):
-        """Sigmoid 近似: x * sigmoid(scale * x)"""
+      
         return x * torch.sigmoid(self.scale * x)
 
     def discrete_forward(self, x):
-        """推理时使用的真正离散化前向传播"""
-        # 简单的二值化：x > 0 ? 1 : 0
+
         return (x > 0).float()
 
     def get_discrete_output(self, x):
-        """获取离散化输出（用于分析）"""
+
         with torch.no_grad():
             return self.discrete_forward(x)
 
-
 class DiscreteTanh(nn.Module):
-    """
-    基于 Signum 函数近似的离散化 Tanh 层
-    tanh(x) ≈ sign(x) * (1 - exp(-|x|))
-    """
 
     def __init__(self,):
         super(DiscreteTanh, self).__init__()
@@ -82,16 +75,13 @@ class DiscreteTanh(nn.Module):
         self.beta = nn.Parameter(torch.tensor(1.0))
 
     def forward(self, x):
-        # 如果在训练阶段，使用连续的近似
+   
         return self._continuous_approximation(x)
 
     def _continuous_approximation(self, x):
-        """训练时使用的连续近似"""
+  
         abs_x = torch.abs(x)
         sign_x = torch.sign(self.beta * x)
-
-        # Signum 近似: sign(x) * (1 - exp(-|x|))
-        # 添加小常数避免数值不稳定
         exp_term = torch.exp(-self.alpha * abs_x)
         output = sign_x * (1 - exp_term)
         return torch.clip(output, -1.0, 1.0)
@@ -102,8 +92,8 @@ class KANLinear(torch.nn.Module):
         self,
         in_features,
         out_features,
-        grid_size=5,  # 3,4,5,6,7
-        spline_order=3,  # 1,2,3,4,5
+        grid_size=5,  
+        spline_order=3,
         scale_noise=0.1,
         scale_base=1.0,
         scale_spline=1.0,
@@ -176,15 +166,7 @@ class KANLinear(torch.nn.Module):
                 torch.nn.init.kaiming_uniform_(self.spline_scaler, a=math.sqrt(5) * self.scale_spline)
 
     def b_splines(self, x: torch.Tensor):
-        """
-        Compute the B-spline bases for the given input tensor.
 
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, in_features).
-
-        Returns:
-            torch.Tensor: B-spline bases tensor of shape (batch_size, in_features, grid_size + spline_order).
-        """
         assert x.dim() == 2 and x.size(1) == self.in_features
 
         grid: torch.Tensor = (
@@ -211,16 +193,7 @@ class KANLinear(torch.nn.Module):
         return bases.contiguous()
 
     def curve2coeff(self, x: torch.Tensor, y: torch.Tensor):
-        """
-        Compute the coefficients of the curve that interpolates the given points.
-
-        Args:
-            x (torch.Tensor): Input tensor of shape (batch_size, in_features).
-            y (torch.Tensor): Output tensor of shape (batch_size, in_features, out_features).
-
-        Returns:
-            torch.Tensor: Coefficients tensor of shape (out_features, in_features, grid_size + spline_order).
-        """
+        
         assert x.dim() == 2 and x.size(1) == self.in_features
         assert y.size() == (x.size(0), self.in_features, self.out_features)
 
@@ -230,7 +203,7 @@ class KANLinear(torch.nn.Module):
         B = y.transpose(0, 1)  # (in_features, batch_size, out_features)
         solution = torch.linalg.lstsq(
             A, B
-        ).solution  # (in_features, grid_size + spline_order, out_features)
+        ).solution 
         result = solution.permute(
             2, 0, 1
         )  # (out_features, in_features, grid_size + spline_order)
@@ -259,15 +232,15 @@ class KANLinear(torch.nn.Module):
         x = x.view(b * n, c_in)
         assert x.dim() == 2 and x.size(1) == self.in_features
 
-        # base 分支
+
         base_output = F.linear(self.base_activation(x), self.base_weight)
 
-        # spline 分支
+    
         spline_raw = F.linear(
             self.b_splines(x).view(x.size(0), -1),
             self.scaled_spline_weight.view(self.out_features, -1),
         )
-        # === 关键改动：把 B-Spline 输出限制在 [-1, 1] ===
+      
         spline_output = self.base_activation(spline_raw)
 
         y = base_output + spline_output
@@ -324,11 +297,7 @@ class KANLinear(torch.nn.Module):
         self.spline_weight.data.copy_(self.curve2coeff(x, unreduced_spline_output))
 
     def regularization_loss(self, regularize_activation=1.0, regularize_entropy=1.0):
-        """
-        Compute the regularization loss.
-
-        这里保持你原来的 L1 + 熵正则
-        """
+ 
         l1_fake = self.spline_weight.abs().mean(-1)
         regularization_loss_activation = l1_fake.sum()
         p = l1_fake / regularization_loss_activation
