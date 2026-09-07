@@ -46,6 +46,17 @@ def data_provider(args, flag):
         freq=freq,
         seasonal_patterns=args.seasonal_patterns
     )
+
+    '''
+    The few‑shot implementation of Time‑VLM. 
+    Our implementation in this paper is aligned with methods such as TimeMixer++ and FSCA. 
+    Please refer to the comments in the `data_loader` for details.
+    '''
+    # num_samples = int(len(data_set) * 0.05)
+    # indices = torch.randperm(len(data_set))[:num_samples]
+    # data_set = torch.utils.data.Subset(data_set, indices)
+    # print(f"Few-shot sampling: {0.05 * 100}% of data, {len(data_set)} samples")
+    
     print(flag, len(data_set))
     data_loader = DataLoader(
         data_set,
