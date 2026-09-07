@@ -194,15 +194,7 @@ class Exp_Short_Term_Forecast(Exp_Basic):
             outputs = outputs.detach().cpu().numpy()
 
             preds = outputs
-            trues = y
-            x = x.detach().cpu().numpy()
-
-            # for i in range(0, preds.shape[0], preds.shape[0] // 10):
-            #     gt = np.concatenate((x[i, :, 0], trues[i]), axis=0)
-            #     pd = np.concatenate((x[i, :, 0], preds[i, :, 0]), axis=0)
-            #     visual(gt, pd, os.path.join(folder_path, str(i) + '.pdf'))
-
-        print('test shape:', preds.shape)
+            
 
         # result save
         folder_path = './m4_results/' + self.args.model + '/'
