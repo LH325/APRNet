@@ -7,7 +7,7 @@ def main():
     forecast_dir = "./m4_results/o/"
 
     # 这里改成你的 M4 数据集根目录
-    root_path = r"D:\TimeSeriesForecasting\AutoTimes-main\Timeseriesdata/m4"
+    root_path = r"D:\......"
 
     required = {
         "Weekly_forecast.csv",
