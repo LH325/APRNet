@@ -131,7 +131,15 @@ class _TemporalAPGC(nn.Module):
             self.cross1 = CrossDomainAttention(channel)
             self.cross2 = CrossDomainAttention(channel)
 
+    '''
+    This implementation uses a unit phase scale, restricting phase corrections to (−1, 1) radians, 
+    a subset of the bounded interval [−π, π] stated in the paper.
+    In the settings we tested, unit scaling achieved better forecasting performance. 
+    Adaptively learning the calibration ranges or scaling limits for amplitude and phase is a promising extension, 
+    but it has not been systematically investigated in this work.
+    '''
 
+    
     def forward(self, amp, phase):
         if self.cross:
 
