@@ -146,6 +146,7 @@ class _TemporalAPGC(nn.Module):
             cross_amp = self.cross1(phase, amp)
             cross_phase = self.cross2(amp, phase)
 
+            # APGC
             amp_att = self.amp_attention(cross_amp)  # [B, C, F]
             amp_att = amp_att  # [B, F, C]
             amp_weighted = amp * amp_att
@@ -155,6 +156,8 @@ class _TemporalAPGC(nn.Module):
             phase_weighted = phase + phase_att
 
         else:
+            
+            # APGC
             amp_att = self.amp_attention(amp)  # [B, C, F]
             amp_att = amp_att  # [B, F, C]
             amp_weighted = amp * amp_att
@@ -213,7 +216,8 @@ class _ChannelAPGC(nn.Module):
 
             cross_amp = cross_amp.permute(0, 2, 1).contiguous()  # [B, F, C] -> [B, C, F]
             cross_phase = cross_phase.permute(0, 2, 1).contiguous()  # [B, F, C] -> [B, C, F]
-
+            
+            # APGC
             amp_att = self.amp_attention(cross_amp)  # [B, C, F]
             amp_weighted = amp * amp_att
 
@@ -221,6 +225,8 @@ class _ChannelAPGC(nn.Module):
             phase_weighted = phase + phase_att
 
         else:
+
+            # APGC
             amp_att = self.amp_attention(amp)  # [B, C, F]
             amp_weighted = amp * amp_att
 
@@ -338,6 +344,9 @@ class Model(nn.Module):
         self.ETT = configs.ETT
         self.cross = configs.cross
 
+        # KANLinear serves as the nonlinear hidden transformation of the predictor,
+        # playing a role analogous to Linear + Activation in a conventional MLP.
+        
         if self.kan_linear:
             self.mlp = nn.Sequential(
                 KANLinear(self.high_dimension, self.predictor_dimension),
