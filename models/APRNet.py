@@ -114,6 +114,7 @@ class _TemporalAPGC(nn.Module):
         self.high_dimension = high_dimension
         self.ETT = ETT
         self.cross = cross
+        'D-KAN'
         self.amp_attention = nn.Sequential(
             KANLinear(freq_bins, (freq_bins // reduction)),
             nn.Linear((freq_bins // reduction), freq_bins),
