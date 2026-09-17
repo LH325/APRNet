@@ -134,8 +134,7 @@ class KANLinear(torch.nn.Module):
         self.scale_base = scale_base
         self.scale_spline = scale_spline
         self.enable_standalone_scale_spline = enable_standalone_scale_spline
-  
-        self.base_activation = base_activation
+        self.base_activation = base_activation()
         self.grid_eps = grid_eps
 
         self.reset_parameters()
