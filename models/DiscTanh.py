@@ -98,7 +98,8 @@ class KANLinear(torch.nn.Module):
         scale_base=1.0,
         scale_spline=1.0,
         enable_standalone_scale_spline=True,
-        base_activation=DiscreteTanh,
+        base_activation2=DiscreteTanh,
+        base_activation=torch.nn.SiLU,
         grid_eps=0.02,
         grid_range=[-1, 1],
         act='tanh'
@@ -134,7 +135,10 @@ class KANLinear(torch.nn.Module):
         self.scale_base = scale_base
         self.scale_spline = scale_spline
         self.enable_standalone_scale_spline = enable_standalone_scale_spline
-        self.base_activation = base_activation()
+        if self.act == 'relu':
+            self.base_activation = base_activation()
+        else:
+            self.base_activation = base_activation2()
         self.grid_eps = grid_eps
 
         self.reset_parameters()
