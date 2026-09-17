@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from typing import NamedTuple
 
 from layers.RevIN import RevIN
-from .DKAN import KANLinear
+from .DiscTanh import KANLinear
 
 
 class TCFMOutput(NamedTuple):
