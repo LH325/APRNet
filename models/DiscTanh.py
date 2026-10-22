@@ -66,6 +66,36 @@ class DiscreteReLU(nn.Module):
         with torch.no_grad():
             return self.discrete_forward(x)
 
+
+# class DiscreteTanh(nn.Module):
+#     def __init__(self, temperature=1.0):
+#         super().__init__()
+
+#         self.alpha = nn.Parameter(torch.tensor(1.0))
+#         self.beta = nn.Parameter(torch.tensor(1.0))
+
+#         self.temperature = temperature
+
+#     def forward(self, x):
+#         abs_x = torch.abs(x)
+        
+#         z = self.beta * x
+#         hard_sign = torch.sign(z)
+
+#         soft_sign = torch.tanh(self.temperature * z)
+
+#         sign_x = (
+#             hard_sign.detach()
+#             - soft_sign.detach()
+#             + soft_sign
+#         )
+
+#         exp_term = torch.exp(-self.alpha * abs_x)
+
+#         output = sign_x * (1 - exp_term)
+
+#         return torch.clamp(output, -1.0, 1.0)
+
 class DiscreteTanh(nn.Module):
 
     def __init__(self,):
